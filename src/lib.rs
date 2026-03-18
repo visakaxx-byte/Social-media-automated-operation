@@ -10,6 +10,12 @@ pub mod db;
 // Browser automation
 pub mod browser;
 
+// Platform adapters
+pub mod platforms;
+
+// Core business logic
+pub mod core;
+
 // CLI interface
 pub mod cli;
 

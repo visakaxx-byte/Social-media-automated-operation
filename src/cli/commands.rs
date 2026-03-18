@@ -1,11 +1,13 @@
 use crate::cli::args::{AccountAction, ContentAction, TaskAction};
 use crate::cli::Commands;
 use crate::config::load_config;
+use crate::core::{AccountManager, TaskScheduler};
 use crate::db::{initialize_database, Database, DbOperations};
 use crate::models::{Account, AccountStatus, Content, ContentType, Task, TaskStatus, TaskType};
 use anyhow::Result;
 use chrono::Utc;
 use std::path::PathBuf;
+use std::sync::Arc;
 use uuid::Uuid;
 
 pub async fn handle_command(command: Commands) -> Result<()> {
@@ -211,7 +213,27 @@ async fn handle_content_action(action: ContentAction) -> Result<()> {
 
 async fn handle_start() -> Result<()> {
     println!("Starting social-auto service...");
-    println!("Service started (not implemented yet)");
+
+    let config = load_config("config.yaml")?;
+    let db_path = PathBuf::from(&config.system.data_dir).join("database.db");
+    let conn = initialize_database(&db_path)?;
+    let db = Arc::new(Database::new(conn));
+
+    // Create account manager
+    let account_manager = Arc::new(AccountManager::new(db.clone()));
+    account_manager.load_active_accounts().await?;
+
+    // Create task scheduler
+    let scheduler = TaskScheduler::new(db.clone(), config.clone());
+
+    println!("✓ Service started");
+    println!("  - Active accounts: {}", account_manager.get_active_accounts().await.len());
+    println!("  - Pending tasks: {}", scheduler.get_pending_count().await?);
+    println!("\nPress Ctrl+C to stop...");
+
+    // Start scheduler (this will block)
+    scheduler.start().await?;
+
     Ok(())
 }
 
@@ -222,9 +244,26 @@ async fn handle_stop() -> Result<()> {
 }
 
 async fn handle_status() -> Result<()> {
-    println!("Service Status:");
-    println!("  Status: Not running");
-    println!("  (Status check not implemented yet)");
+    let config = load_config("config.yaml")?;
+    let db_path = PathBuf::from(&config.system.data_dir).join("database.db");
+    let conn = initialize_database(&db_path)?;
+    let db = Arc::new(Database::new(conn));
+
+    let account_manager = Arc::new(AccountManager::new(db.clone()));
+    account_manager.load_active_accounts().await?;
+
+    let scheduler = TaskScheduler::new(db.clone(), config);
+
+    println!("\nService Status:");
+    println!("  Running: {}", if scheduler.is_running().await { "Yes" } else { "No" });
+    println!("\nAccounts:");
+    println!("  Active: {}", account_manager.get_account_count_by_status(AccountStatus::Active).await?);
+    println!("  Inactive: {}", account_manager.get_account_count_by_status(AccountStatus::Inactive).await?);
+    println!("  Suspended: {}", account_manager.get_account_count_by_status(AccountStatus::Suspended).await?);
+    println!("\nTasks:");
+    println!("  Pending: {}", scheduler.get_pending_count().await?);
+    println!("  Running: {}", scheduler.get_running_count().await?);
+
     Ok(())
 }
 
