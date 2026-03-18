@@ -1,6 +1,6 @@
 use crate::models::{Account, AccountStatus, Task, TaskStatus, TaskType, Content, ContentType};
 use anyhow::Result;
-use rusqlite::{Connection, params};
+use rusqlite::{Connection, params, OptionalExtension};
 use std::sync::{Arc, Mutex};
 
 pub struct Database {

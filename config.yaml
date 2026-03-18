@@ -1,0 +1,44 @@
+# System configuration
+system:
+  max_concurrent_tasks: 3
+  task_timeout: 300
+  log_level: info
+  data_dir: "./data"
+
+# Browser configuration
+browser:
+  headless: true
+  chrome_path: null
+  user_data_dir: "./profiles"
+  window_size: [1920, 1080]
+
+# Stealth configuration
+stealth:
+  enabled: true
+  randomize_fingerprint: true
+  block_webrtc: true
+  timezone: "Asia/Shanghai"
+
+# Scheduler configuration
+scheduler:
+  check_interval: 60
+  retry_max: 3
+  retry_backoff: [60, 300, 900]
+
+# Rate limits
+rate_limits:
+  xiaohongshu:
+    posts_per_day: 5
+    likes_per_hour: 20
+    comments_per_hour: 10
+    follows_per_day: 30
+  twitter:
+    posts_per_day: 10
+    likes_per_hour: 50
+    comments_per_hour: 20
+    follows_per_day: 50
+  instagram:
+    posts_per_day: 3
+    likes_per_hour: 30
+    comments_per_hour: 15
+    follows_per_day: 40

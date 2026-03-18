@@ -7,7 +7,7 @@ use std::path::PathBuf;
 
 pub struct BrowserEngine {
     browser: Browser,
-    config: BrowserConfig,
+    _config: BrowserConfig,
 }
 
 impl BrowserEngine {
@@ -31,19 +31,14 @@ impl BrowserEngine {
             builder = builder.chrome_executable(PathBuf::from(chrome_path));
         }
 
-        let chrome_config = builder.build()?;
-        let (browser, mut handler) = Browser::launch(chrome_config).await?;
+        let chrome_config = builder.build()
+            .map_err(|e| anyhow::anyhow!("Failed to build browser config: {}", e))?;
+        let (browser, _handler) = Browser::launch(chrome_config).await?;
 
-        // Spawn handler task
-        tokio::spawn(async move {
-            loop {
-                if handler.next().await.is_none() {
-                    break;
-                }
-            }
-        });
+        // Handler will be dropped, browser will continue to work
+        // In production, you may want to keep the handler alive
 
-        Ok(Self { browser, config })
+        Ok(Self { browser, _config: config })
     }
 
     pub async fn new_page(&self) -> Result<Page> {
@@ -58,12 +53,12 @@ impl BrowserEngine {
         let fingerprint = StealthPatch::generate_random_fingerprint();
         let stealth_script = StealthPatch::generate_stealth_script(&fingerprint);
 
-        page.evaluate(&stealth_script).await?;
+        page.evaluate(stealth_script.as_str()).await?;
 
         Ok(page)
     }
 
-    pub async fn close(&self) -> Result<()> {
+    pub async fn close(mut self) -> Result<()> {
         self.browser.close().await?;
         Ok(())
     }

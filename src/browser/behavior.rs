@@ -28,7 +28,7 @@ impl HumanBehavior {
                 "#,
                 point.0, point.1
             );
-            page.evaluate(&script).await?;
+            page.evaluate(script.as_str()).await?;
 
             // Random delay between movements
             let delay = rand::thread_rng().gen_range(5..15);
@@ -88,7 +88,7 @@ impl HumanBehavior {
                 selector,
                 ch.escape_default()
             );
-            page.evaluate(&script).await?;
+            page.evaluate(script.as_str()).await?;
 
             // Random typing delay (50-150ms)
             let delay = rng.gen_range(50..150);
@@ -108,7 +108,7 @@ impl HumanBehavior {
         for _ in 0..scroll_steps {
             let step = scroll_amount / scroll_steps;
             let script = format!("window.scrollBy(0, {})", step);
-            page.evaluate(&script).await?;
+            page.evaluate(script.as_str()).await?;
 
             let delay = rng.gen_range(50..200);
             sleep(Duration::from_millis(delay)).await;
@@ -144,7 +144,7 @@ impl HumanBehavior {
             selector
         );
 
-        if let Ok(result) = page.evaluate(&script).await {
+        if let Ok(result) = page.evaluate(script.as_str()).await {
             if let Ok(coords) = result.into_value::<Vec<f64>>() {
                 if coords.len() == 2 {
                     Self::move_mouse_to(page, coords[0], coords[1]).await?;
@@ -165,7 +165,7 @@ impl HumanBehavior {
             "#,
             selector
         );
-        page.evaluate(&click_script).await?;
+        page.evaluate(click_script.as_str()).await?;
 
         Ok(())
     }
