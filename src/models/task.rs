@@ -15,7 +15,7 @@ pub struct Task {
     pub metadata: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum TaskType {
     Post,
     Like,

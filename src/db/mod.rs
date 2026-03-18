@@ -2,6 +2,7 @@ mod schema;
 mod operations;
 
 pub use operations::{Database, DbOperations};
+pub use schema::create_tables as init_database;
 
 use anyhow::Result;
 use rusqlite::Connection;

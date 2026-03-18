@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use anyhow::Result;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Settings {
@@ -8,6 +9,14 @@ pub struct Settings {
     pub stealth: StealthConfig,
     pub scheduler: SchedulerConfig,
     pub rate_limits: HashMap<String, RateLimits>,
+}
+
+impl Settings {
+    pub fn load(path: &str) -> Result<Self> {
+        let content = std::fs::read_to_string(path)?;
+        let settings: Settings = serde_yaml::from_str(&content)?;
+        Ok(settings)
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

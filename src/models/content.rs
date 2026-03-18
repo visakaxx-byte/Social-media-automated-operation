@@ -15,7 +15,7 @@ pub struct Content {
     pub used_count: i32,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum ContentType {
     Text,
     Image,
