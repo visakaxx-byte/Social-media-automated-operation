@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社媒自动运营系统</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 社媒自动运营系统</h1>
+            <div class="status-indicator">
+                <span id="connection-status" class="status-dot offline"></span>
+                <span id="connection-text">离线</span>
+            </div>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="dashboard">仪表盘</button>
+            <button class="tab-btn" data-tab="accounts">账号管理</button>
+            <button class="tab-btn" data-tab="tasks">任务管理</button>
+            <button class="tab-btn" data-tab="contents">内容库</button>
+        </nav>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>账号统计</h3>
+                    <div class="stat-value" id="total-accounts">0</div>
+                    <div class="stat-details">
+                        <span>活跃: <strong id="active-accounts">0</strong></span>
+                        <span>暂停: <strong id="suspended-accounts">0</strong></span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>任务统计</h3>
+                    <div class="stat-value" id="total-tasks">0</div>
+                    <div class="stat-details">
+                        <span>待执行: <strong id="pending-tasks">0</strong></span>
+                        <span>执行中: <strong id="running-tasks">0</strong></span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>内容库</h3>
+                    <div class="stat-value" id="total-contents">0</div>
+                    <div class="stat-details">
+                        <span>可用内容数量</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>系统状态</h3>
+                    <div class="stat-value" id="scheduler-status">停止</div>
+                    <div class="stat-details">
+                        <span>调度器状态</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>最近日志</h2>
+                <div id="logs" class="logs-container">
+                    <p class="empty-state">暂无日志</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accounts Tab -->
+        <div id="accounts" class="tab-content">
+            <div class="section-header">
+                <h2>账号管理</h2>
+                <button class="btn btn-primary" onclick="showAddAccountModal()">+ 添加账号</button>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>平台</th>
+                        <th>用户名</th>
+                        <th>状态</th>
+                        <th>健康度</th>
+                        <th>最后活跃</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="accounts-table">
+                    <tr>
+                        <td colspan="6" class="empty-state">暂无账号</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tasks Tab -->
+        <div id="tasks" class="tab-content">
+            <div class="section-header">
+                <h2>任务管理</h2>
+                <button class="btn btn-primary" onclick="showAddTaskModal()">+ 创建任务</button>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>类型</th>
+                        <th>账号</th>
+                        <th>状态</th>
+                        <th>计划时间</th>
+                        <th>执行时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tasks-table">
+                    <tr>
+                        <td colspan="6" class="empty-state">暂无任务</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Contents Tab -->
+        <div id="contents" class="tab-content">
+            <div class="section-header">
+                <h2>内容库</h2>
+                <button class="btn btn-primary" onclick="showAddContentModal()">+ 添加内容</button>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>类型</th>
+                        <th>平台</th>
+                        <th>标题</th>
+                        <th>使用次数</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="contents-table">
+                    <tr>
+                        <td colspan="6" class="empty-state">暂无内容</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModal()"></div>
+
+    <div id="add-account-modal" class="modal">
+        <h3>添加账号</h3>
+        <form onsubmit="addAccount(event)">
+            <div class="form-group">
+                <label>平台</label>
+                <select id="account-platform" required>
+                    <option value="xiaohongshu">小红书</option>
+                    <option value="twitter">Twitter</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" id="account-username" required>
+            </div>
+            <div class="form-group">
+                <label>代理 (可选)</label>
+                <input type="text" id="account-proxy" placeholder="socks5://127.0.0.1:1080">
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn" onclick="closeModal()">取消</button>
+                <button type="submit" class="btn btn-primary">添加</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -4,6 +4,7 @@ use crate::config::load_config;
 use crate::core::{AccountManager, TaskScheduler};
 use crate::db::{initialize_database, Database, DbOperations};
 use crate::models::{Account, AccountStatus, Content, ContentType, Task, TaskStatus, TaskType};
+use crate::web::{AppState, WebServer};
 use anyhow::Result;
 use chrono::Utc;
 use std::path::PathBuf;
@@ -269,6 +270,27 @@ async fn handle_status() -> Result<()> {
 
 async fn handle_web(port: u16) -> Result<()> {
     println!("Starting web interface on port {}...", port);
-    println!("Web interface not implemented yet");
+
+    let config = load_config("config.yaml")?;
+    let db_path = PathBuf::from(&config.system.data_dir).join("database.db");
+    let conn = initialize_database(&db_path)?;
+    let db = Arc::new(Database::new(conn));
+
+    // Create account manager
+    let account_manager = Arc::new(AccountManager::new(db.clone()));
+    account_manager.load_active_accounts().await?;
+
+    // Create app state
+    let state = AppState::new(db.clone(), account_manager);
+
+    // Create and start web server
+    let server = WebServer::new(state, port);
+
+    println!("✓ Web interface started");
+    println!("  Open http://localhost:{} in your browser", port);
+    println!("\nPress Ctrl+C to stop...");
+
+    server.start().await?;
+
     Ok(())
 }

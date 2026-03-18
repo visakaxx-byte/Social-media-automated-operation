@@ -16,6 +16,9 @@ pub mod platforms;
 // Core business logic
 pub mod core;
 
+// Web interface
+pub mod web;
+
 // CLI interface
 pub mod cli;
 
