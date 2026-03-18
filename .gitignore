@@ -1,0 +1,7 @@
+/target
+/data/*.db
+/data/*.db-*
+/profiles
+*.log
+.DS_Store
+config.local.yaml
